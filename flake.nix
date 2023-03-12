@@ -45,6 +45,13 @@
             platforms = platforms.all;
           };
         };
+        packages.dmenu_run = let pkgs = self.legacyPackages.${system};
+        in pkgs.writeShellApplication {
+          name = "dmenu_run";
+          checkPhase = ":";
+          runtimeInputs = [ self.packages.${system}.dmenu ];
+          text = builtins.readFile (pkgs.substituteAll { src = ./dmenu_run; });
+        };
         packages.default = self.packages.${system}.dmenu;
       });
 }
