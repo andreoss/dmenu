@@ -155,16 +155,27 @@ drawitem(struct item *item, int x, int y, int w)
 static void
 drawmenu(void)
 {
-	unsigned int curpos;
-	struct item *item;
-	int x = 0, y = 0, w;
+    unsigned int curpos;
+    struct item *item;
+    int x = 0, y = 0, w;
 
-	drw_setscheme(drw, scheme[SchemeNorm]);
-	drw_rect(drw, 0, 0, mw, mh, 1, 1);
+    int count = 0;
+    for (item = curr; item != next; item = item->right)
+      count++;
+    if (strlen(text) > 0)
+        mh = (1 + MIN(lines, count)) * bh;
+    else
+        mh = bh;
 
-	if (prompt && *prompt) {
-		drw_setscheme(drw, scheme[SchemeSel]);
-		x = drw_text(drw, x, 0, promptw, bh, lrpad / 2, prompt, 0);
+    XResizeWindow(dpy, win, mw, mh);
+
+    drw_resize(drw, mw, mh);
+    drw_setscheme(drw, scheme[SchemeNorm]);
+    drw_rect(drw, 0, 0, mw, mh, 1, 1);
+
+    if (prompt && *prompt) {
+      drw_setscheme(drw, scheme[SchemeSel]);
+      x = drw_text(drw, x, 0, promptw, bh, lrpad / 2, prompt, 0);
 	}
 	/* draw input field */
 	w = (lines > 0 || !matches) ? mw - x : inputw;
@@ -178,10 +189,12 @@ drawmenu(void)
 	}
 
 	if (lines > 0) {
-		/* draw vertical list */
-		for (item = curr; item != next; item = item->right)
-			drawitem(item, x, y += bh, mw - x);
-	} else if (matches) {
+          if (strlen(text) > 0) {
+            /* draw vertical list */
+            for (item = curr; item != next; item = item->right)
+              drawitem(item, x, y += bh, mw - x);
+          }
+        } else if (matches) {
 		/* draw horizontal list */
 		x += inputw;
 		w = TEXTW("<");
@@ -733,7 +746,6 @@ setup(void)
 		}
 		grabfocus();
 	}
-	drw_resize(drw, mw, mh);
 	drawmenu();
 }
 
