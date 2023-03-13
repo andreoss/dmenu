@@ -1,0 +1,34 @@
+name: CICD
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+jobs:
+  build:
+    strategy:
+        matrix:
+           package:
+           - dmenu
+           - dmenu_run
+           channel:
+           - nixos-unstable
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Nix
+      uses: cachix/install-nix-action@v13
+      with:
+        nix_path: nixpkgs=channel:${{matrix.channel}}
+        extra_nix_config: |
+          experimental-features = nix-command flakes
+    - uses: cachix/cachix-action@v12
+      with:
+        name: dmenu
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - name: Enable cache
+      run: cachix use dmenu
+    - name: Build
+      run: nix build .#${{matrix.package}}
+    - name: Push
+      run:  nix path-info --all | cachix push dmenu
