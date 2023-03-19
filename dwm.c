@@ -662,13 +662,16 @@ createmon(void)
 void
 switch_windows()
 {
+	Client *c;
 	/* move to next window */
 	if (selmon->sel != NULL && selmon->sel->snext != NULL) {
 		selmon->win_count++;
 		if (selmon->win_count >= selmon->nTabs)
 			selmon->win_count = 0; /* reset win_count */
 
-		focus(selmon->altsnext[selmon->win_count]);
+                c= selmon->altsnext[selmon->win_count];
+		XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
+		focus(c);
 		restack(selmon);
 	}
 
@@ -680,6 +683,7 @@ switch_windows()
 void
 switch_windows_end()
 {
+	Client *c;
 	if (selmon->isAlt == 0)
 		return;
 
@@ -701,7 +705,9 @@ switch_windows_end()
 
 		/* restack clients */
 		for (int i = selmon->nTabs - 1;i >= 0;i--) {
-			focus(selmon->altsnext[i]);
+                        c =  selmon->altsnext[i];
+                        XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
+			focus(c);
 			restack(selmon);
 		}
 
@@ -855,6 +861,7 @@ switch_windows_start(const Arg *arg)
 				switch_windows_end(); /* end the alt-tab functionality */
 				/* XUngrabKeyboard(display, time); just a reference */
 				XUngrabKeyboard(dpy, CurrentTime); /* stop taking all input from keyboard */
+		                XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
 				focus(c);
 				restack(selmon);
 			}
@@ -1102,6 +1109,7 @@ focusstack(const Arg *arg)
 	if (c) {
 		focus(c);
 		restack(selmon);
+		XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
 	}
 }
 
@@ -2309,8 +2317,11 @@ updatewmhints(Client *c)
 		if (c == selmon->sel && wmh->flags & XUrgencyHint) {
 			wmh->flags &= ~XUrgencyHint;
 			XSetWMHints(dpy, c->win, wmh);
-		} else
+		} else {
 			c->isurgent = (wmh->flags & XUrgencyHint) ? 1 : 0;
+			if (c->isurgent)
+                            XSetWindowBorder(dpy, c->win, scheme[SchemeUrg][ColBorder].pixel);
+                }
 		if (wmh->flags & InputHint)
 			c->neverfocus = !wmh->input;
 		else
