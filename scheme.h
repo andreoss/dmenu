@@ -1,11 +1,12 @@
 #pragma once
 
 enum { ColFg, ColBg, ColBorder }; /* Clr scheme index */
-enum { SchemeNorm, SchemeSel, SchemeOut, SchemeLast }; /* color schemes */
+enum { SchemeNorm, SchemeSel, SchemeOut, SchemeLast, SchemeUrg }; /* color schemes */
 
-static const char *colors[][3]      = {
+static const char *colors[][4]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { "#bbbbbb",  "#000000",  "#bbbbbb" },
-	[SchemeSel]  = { "#fefefe",  "#993232",  "#533232"  },
+	[SchemeNorm] = { "#000000",  "#d3d7cf",  "#888888" },
+	[SchemeSel]  = { "#fefeff",  "#3232ae",  "#434343"  },
 	[SchemeOut]  = { "#000000",  "#9ebfbf" , "#323232" },
+	[SchemeUrg]  = { "#000000",  "#9ebfbf" , "#FF3232" },
 };
