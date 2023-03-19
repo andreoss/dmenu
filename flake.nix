@@ -18,7 +18,10 @@
           version = "0.5.2";
           name = "dmenu-${version}";
           src = lib.cleanSource ./.;
+
+          nativeBuildInputs = with pkgs; [ pkg-config ];
           buildInputs = with pkgs; [
+            fribidi
             xorg.libX11
             xorg.libXext
             xorg.libXinerama
@@ -34,7 +37,7 @@
             sed -i "s@PREFIX = /usr/local@PREFIX = $out@g" config.mk
           '';
 
-          makeFlags = [ "CC:=$(CC)" "CFLAGS=-Wno-error" ];
+          makeFlags = [ "CC:=$(CC)" ];
           enableParallelBuilding = true;
           doCheck = true;
           meta = with lib; {

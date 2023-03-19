@@ -19,15 +19,15 @@ static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 /* tagging */
 static const char *tags[] = {
-    "ا",
-    "ب",
-    "ج",
-    "د",
-    "ه",
-    "و",
-    "ز",
-    "ح",
-    "ط"
+    "Ⅰ",
+    "Ⅱ",
+    "Ⅲ",
+    "Ⅳ",
+    "Ⅴ",
+    "Ⅵ",
+    "Ⅶ",
+    "Ⅷ",
+    "Ⅸ"
 };
 
 static const Rule rules[] = {
@@ -48,10 +48,9 @@ static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen win
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
-};
+	{" Ŧ ", tile},    /* first entry is default */
+	{" ƒ ", NULL },    /* no layout function means floating behavior */
+	{" Ɱ ",      monocle },};
 
 /* key definitions */
 #define MODKEY Mod1Mask

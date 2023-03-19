@@ -23,10 +23,10 @@ config.h:
 $(OBJ): arg.h config.h config.mk drw.h config.dwm.h
 
 dmenu: drw.o util.o
-	$(CC) dmenu.c -o $@ ${OBJ} $(LDFLAGS)
+	$(CC) dmenu.c -o $@ ${OBJ} $(LDFLAGS) $(CFLAGS)
 
 dwm: ${OBJ}
-	${CC} dwm.c -o $@ ${OBJ} ${LDFLAGS}
+	${CC} dwm.c -o $@ ${OBJ} ${LDFLAGS} $(CFLAGS)
 
 stest: ${OBJ}
 	$(CC) stest.c -o $@ ${OBJ} $(LDFLAGS)
