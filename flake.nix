@@ -10,6 +10,7 @@
         systems = lib.systems.flakeExposed;
         lib = nixpkgs.lib;
         eachSystem = lib.genAttrs systems;
+        pkgs = self.legacyPackages.${system};
       in {
         legacyPackages = import nixpkgs { inherit system; };
         packages.dmenu = let pkgs = self.legacyPackages.${system};
@@ -33,7 +34,7 @@
             sed -i "s@PREFIX = /usr/local@PREFIX = $out@g" config.mk
           '';
 
-          makeFlags = [ "CC:=$(CC)" ];
+          makeFlags = [ "CC:=$(CC)" "CFLAGS=-Wno-error" ];
           enableParallelBuilding = true;
           doCheck = true;
           meta = with lib; {
@@ -45,6 +46,20 @@
             platforms = platforms.all;
           };
         };
+        packages.dwm = let pkgs = self.legacyPackages.${system};
+        in pkgs.writeShellApplication {
+          name = "dwm";
+          checkPhase = ":";
+          runtimeInputs = [ self.packages.${system}.dmenu ];
+          text = "exec ${self.packages.${system}.dmenu}/bin/dwm $@";
+        };
+        packages.passmenu = let pkgs = self.legacyPackages.${system};
+        in pkgs.writeShellApplication {
+          name = "passmenu";
+          checkPhase = ":";
+          runtimeInputs = [ self.packages.${system}.dmenu ];
+          text = "${./passmenu}";
+        };
         packages.dmenu_run = let pkgs = self.legacyPackages.${system};
         in pkgs.writeShellApplication {
           name = "dmenu_run";
@@ -53,5 +68,12 @@
           text = builtins.readFile (pkgs.substituteAll { src = ./dmenu_run; });
         };
         packages.default = self.packages.${system}.dmenu;
+        devShells.default = pkgs.mkShell {
+          buildInputs = self.packages.${system}.default.buildInputs;
+          shellHook = ''
+            echo xxx
+          '';
+
+        };
       });
 }
