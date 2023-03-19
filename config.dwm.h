@@ -18,7 +18,17 @@ static const unsigned int borderpx  = 3;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 /* tagging */
-static const char *tags[] = { "١", "٢", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = {
+    "ا",
+    "ب",
+    "ج",
+    "د",
+    "ه",
+    "و",
+    "ز",
+    "ح",
+    "ط"
+};
 
 static const Rule rules[] = {
 	/* xprop(1):
