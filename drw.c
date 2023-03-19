@@ -6,6 +6,7 @@
 #include <X11/Xft/Xft.h>
 
 #include "drw.h"
+#include "scheme.h"
 #include "util.h"
 
 #define UTF_INVALID 0xFFFD

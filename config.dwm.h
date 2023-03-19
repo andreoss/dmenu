@@ -2,6 +2,8 @@
 
 /* appearance */
 #define VERSION "121"
+#include "scheme.h"
+#include "config.def.h"
 
 /* alt-tab configuration */
 static const unsigned int mod_key_tab 		= 0x40;	/* if this key is hold the alt-tab functionality stays acitve. This key must be the same as key that is used to active functin switch_windows_start `*/
@@ -15,19 +17,6 @@ static const int user_bh            = 0;        /* 0 means that dwm will calcula
 static const unsigned int borderpx  = 3;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 0;        /* 0 means bottom bar */
-static const char *fonts[]          = { "Unifont:size=12" };
-static const char col_gray1[]       = "#000000";
-static const char col_gray2[]       = "#ffffea";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#aaaaaa";
-static const char col_cyan[]        = "#533333";
-static const char *colors[][3]      = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
-};
-
 /* tagging */
 static const char *tags[] = { "١", "٢", "3", "4", "5", "6", "7", "8", "9" };
 

@@ -18,6 +18,7 @@
 
 #include "drw.h"
 #include "util.h"
+#include "scheme.h"
 
 /* macros */
 #define INTERSECT(x,y,w,h,r)  (MAX(0, MIN((x)+(w),(r).x_org+(r).width)  - MAX((x),(r).x_org)) \
@@ -26,7 +27,6 @@
 #define TEXTW(X)              (drw_fontset_getwidth(drw, (X)) + lrpad)
 
 /* enums */
-enum { SchemeNorm, SchemeSel, SchemeOut, SchemeLast }; /* color schemes */
 
 struct item {
 	char *text;
