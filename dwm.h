@@ -1,5 +1,12 @@
 #pragma once
 
+typedef union {
+	int i;
+	unsigned int ui;
+	float f;
+	const void *v;
+} Arg;
+
 typedef struct Monitor Monitor;
 typedef struct Client Client;
 struct Client {
@@ -65,13 +72,6 @@ typedef struct {
 	int isfloating;
 	int monitor;
 } Rule;
-
-typedef union {
-	int i;
-	unsigned int ui;
-	float f;
-	const void *v;
-} Arg;
 
 typedef struct {
 	unsigned int click;

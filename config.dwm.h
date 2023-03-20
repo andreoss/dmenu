@@ -3,6 +3,7 @@
 /* appearance */
 #define VERSION "121"
 #include "scheme.h"
+#include "dwm.h"
 #include "config.def.h"
 
 /* alt-tab configuration */
