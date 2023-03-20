@@ -1230,8 +1230,10 @@ manage(Window w, XWindowAttributes *wa)
 		applyrules(c);
 	}
 
-        c->x = c->mon->mx + (c->mon->mw - WIDTH(c)) / 2;
-        c->y = c->mon->my + (c->mon->mh - HEIGHT(c)) / 2;
+        c->x =
+            c->mon->mx + (c->mon->mw - WIDTH(c)) / 2 - (rand() % WIDTH(c));
+        c->y =
+            c->mon->my + (c->mon->mh - HEIGHT(c)) / 2 - (rand() % HEIGHT(c));
 	c->bw = borderpx;
 
 	wc.border_width = c->bw;
