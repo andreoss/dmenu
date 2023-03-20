@@ -17,22 +17,16 @@
 #include <X11/Xft/Xft.h>
 
 #include "drw.h"
+#include "dmenu.h"
 #include "util.h"
 #include "scheme.h"
 
 /* macros */
 #define INTERSECT(x,y,w,h,r)  (MAX(0, MIN((x)+(w),(r).x_org+(r).width)  - MAX((x),(r).x_org)) \
                              * MAX(0, MIN((y)+(h),(r).y_org+(r).height) - MAX((y),(r).y_org)))
-#define LENGTH(X)             (sizeof X / sizeof X[0])
 #define TEXTW(X)              (drw_fontset_getwidth(drw, (X)) + lrpad)
 
 /* enums */
-
-struct item {
-	char *text;
-	struct item *left, *right;
-	int out;
-};
 
 static char text[BUFSIZ] = "";
 static char *embed;
@@ -40,9 +34,9 @@ static int bh, mw, mh;
 static int inputw = 0, promptw;
 static int lrpad; /* sum of left and right padding */
 static size_t cursor;
-static struct item *items = NULL;
-static struct item *matches, *matchend;
-static struct item *prev, *curr, *next, *sel;
+static item_t *items = NULL;
+static item_t *matches, *matchend;
+static item_t *prev, *curr, *next, *sel;
 static int mon = -1, screen;
 
 static Atom clip, utf8;
@@ -66,7 +60,7 @@ textw_clamp(const char *str, unsigned int n)
 }
 
 static void
-appenditem(struct item *item, struct item **list, struct item **last)
+appenditem(item_t *item, struct item **list, struct item **last)
 {
 	if (*last)
 		(*last)->right = item;
@@ -100,7 +94,7 @@ static int
 max_textw(void)
 {
 	int len = 0;
-	for (struct item *item = items; item && item->text; item++)
+	for (item_t *item = items; item && item->text; item++)
 		len = MAX(TEXTW(item->text), len);
 	return len;
 }
@@ -140,7 +134,7 @@ cistrstr(const char *h, const char *n)
 }
 
 static int
-drawitem(struct item *item, int x, int y, int w)
+drawitem(item_t *item, int x, int y, int w)
 {
 	if (item == sel)
 		drw_setscheme(drw, scheme[SchemeSel]);
@@ -156,7 +150,7 @@ static void
 drawmenu(void)
 {
     unsigned int curpos;
-    struct item *item;
+    item_t *item;
     int x = 0, y = 0, w;
 
     int count = 0;
@@ -258,7 +252,7 @@ match(void)
 	char buf[sizeof text], *s;
 	int i, tokc = 0;
 	size_t len, textsize;
-	struct item *item, *lprefix, *lsubstr, *prefixend, *substrend;
+	item_t *item, *lprefix, *lsubstr, *prefixend, *substrend;
 
 	strcpy(buf, text);
 	/* separate input text into tokens to be matched individually */
@@ -563,7 +557,7 @@ void mouse_leave(XEvent *e) {
 static void
 buttonpress(XEvent *e)
 {
-	struct item *item;
+	item_t *item;
 	XButtonPressedEvent *ev = &e->xbutton;
 	int x = 0, y = 0, h = bh, w;
 
