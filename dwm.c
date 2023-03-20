@@ -51,7 +51,6 @@
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
-#define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
@@ -67,86 +66,7 @@ enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms *
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
        ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
 
-typedef union {
-	int i;
-	unsigned int ui;
-	float f;
-	const void *v;
-} Arg;
 
-typedef struct {
-	unsigned int click;
-	unsigned int mask;
-	unsigned int button;
-	void (*func)(const Arg *arg);
-	const Arg arg;
-} Button;
-
-typedef struct Monitor Monitor;
-typedef struct Client Client;
-struct Client {
-	char name[256];
-	float mina, maxa;
-	int x, y, w, h;
-	int oldx, oldy, oldw, oldh;
-	int basew, baseh, incw, inch, maxw, maxh, minw, minh, hintsvalid;
-	int bw, oldbw;
-	unsigned int tags;
-	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
-	Client *next;
-	Client *snext;
-	Monitor *mon;
-	Window win;
-};
-
-typedef struct {
-	unsigned int mod;
-	KeySym keysym;
-	void (*func)(const Arg *);
-	const Arg arg;
-} Key;
-
-typedef struct {
-	const char *symbol;
-	void (*arrange)(Monitor *);
-} Layout;
-
-struct Monitor {
-	char ltsymbol[16];
-	float mfact;
-	int nmaster;
-	int num;
-	int by;               /* bar geometry */
-	int mx, my, mw, mh;   /* screen size */
-	int wx, wy, ww, wh;   /* window area  */
- 	int win_count;		  /* move that many clients forward */
- 	int nTabs;			  /* number of active clients in tag */
- 	int isAlt; 			  /* 1,0 */
- 	int menu_max_width;
- 	int menu_max_height;
-	unsigned int seltags;
-	unsigned int sellt;
-	unsigned int tagset[2];
-	int showbar;
-	int topbar;
-	Client *clients;
-	Client *sel;
-	Client *stack;
-	Monitor *next;
-	Client ** altsnext; /* array of all clients in the tag */
-	Window barwin;
-	Window tabwin;
-	const Layout *lt[2];
-};
-
-typedef struct {
-	const char *class;
-	const char *instance;
-	const char *title;
-	unsigned int tags;
-	int isfloating;
-	int monitor;
-} Rule;
 
 /* function declarations */
 static void applyrules(Client *c);
@@ -219,6 +139,7 @@ static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
+static void togglealwaysontop(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void unfocus(Client *c, int setfocus);
@@ -987,8 +908,11 @@ drawbar(Monitor *m)
 				drw_setscheme(drw, scheme[m == selmon && m->sel == c ? SchemeSel : SchemeNorm]);
 				if (tw > lrpad / 2)
 					drw_text(drw, x, 0, tw, bh, lrpad / 2, c->name, 0);
-				if (c->isfloating)
+				if (c->isfloating) {
 					drw_rect(drw, x + boxs, boxs, boxw, boxw, c->isfixed, 0);
+                                        if (c->isalwaysontop)
+                                            drw_rect(drw, x + boxs, bh - boxw, boxw, boxw, 0, 0);
+                                }
 				x += tw;
 				w -= tw;
 			}
@@ -1305,12 +1229,8 @@ manage(Window w, XWindowAttributes *wa)
 		applyrules(c);
 	}
 
-	if (c->x + WIDTH(c) > c->mon->wx + c->mon->ww)
-		c->x = c->mon->wx + c->mon->ww - WIDTH(c);
-	if (c->y + HEIGHT(c) > c->mon->wy + c->mon->wh)
-		c->y = c->mon->wy + c->mon->wh - HEIGHT(c);
-	c->x = MAX(c->x, c->mon->wx);
-	c->y = MAX(c->y, c->mon->wy);
+        c->x = c->mon->mx + (c->mon->mw - WIDTH(c)) / 2;
+        c->y = c->mon->my + (c->mon->mh - HEIGHT(c)) / 2;
 	c->bw = borderpx;
 
 	wc.border_width = c->bw;
@@ -1638,6 +1558,17 @@ restack(Monitor *m)
 		return;
 	if (m->sel->isfloating || !m->lt[m->sellt]->arrange)
 		XRaiseWindow(dpy, m->sel->win);
+
+ 	/* raise the aot window */
+ 	for(Monitor *m_search = mons; m_search; m_search = m_search->next){
+ 		for(c = m_search->clients; c; c = c->next){
+ 			if(c->isalwaysontop){
+ 				XRaiseWindow(dpy, c->win);
+ 				break;
+ 			}
+ 		}
+ 	}
+
 	if (m->lt[m->sellt]->arrange) {
 		wc.stack_mode = Below;
 		wc.sibling = m->barwin;
@@ -2008,7 +1939,32 @@ togglefloating(const Arg *arg)
 	if (selmon->sel->isfloating)
 		resize(selmon->sel, selmon->sel->x, selmon->sel->y,
 			selmon->sel->w, selmon->sel->h, 0);
+	else
+		selmon->sel->isalwaysontop = 0; /* disabled, turn this off too */
 	arrange(selmon);
+}
+
+void
+togglealwaysontop(const Arg *arg)
+{
+	if (!selmon->sel)
+		return;
+	if (selmon->sel->isfullscreen)
+		return;
+
+	if(selmon->sel->isalwaysontop){
+		selmon->sel->isalwaysontop = 0;
+	}else{
+		/* disable others */
+		for(Monitor *m = mons; m; m = m->next)
+			for(Client *c = m->clients; c; c = c->next)
+				c->isalwaysontop = 0;
+
+		/* turn on, make it float too */
+		selmon->sel->isfloating = 1;
+		selmon->sel->isalwaysontop = 1;
+	}
+
 }
 
 void

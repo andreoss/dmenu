@@ -20,7 +20,7 @@ options:
 config.h:
 	cp config.def.h $@
 
-$(OBJ): arg.h config.h config.mk drw.h config.dwm.h
+$(OBJ): arg.h config.h config.mk drw.h dwm.h config.dwm.h
 
 dmenu: drw.o util.o
 	$(CC) dmenu.c -o $@ ${OBJ} $(LDFLAGS) $(CFLAGS)
