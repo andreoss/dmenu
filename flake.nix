@@ -26,6 +26,11 @@
             xorg.libXext
             xorg.libXinerama
             xorg.libXft
+            xorg.xcbproto
+            xorg.xcbutil
+            xorg.xcbutilwm
+            xorg.xcbutilcursor
+            xorg.xcbutilkeysyms
           ];
 
           postPatch = ''
@@ -48,6 +53,13 @@
             maintainers = [ ];
             platforms = platforms.all;
           };
+        };
+        packages.st = let pkgs = self.legacyPackages.${system};
+        in pkgs.writeShellApplication {
+          name = "st";
+          checkPhase = ":";
+          runtimeInputs = [ self.packages.${system}.dmenu ];
+          text = "exec ${self.packages.${system}.dmenu}/bin/st $@";
         };
         packages.dwm = let pkgs = self.legacyPackages.${system};
         in pkgs.writeShellApplication {
@@ -72,11 +84,9 @@
         };
         packages.default = self.packages.${system}.dmenu;
         devShells.default = pkgs.mkShell {
-          buildInputs = self.packages.${system}.default.buildInputs;
-          shellHook = ''
-            echo xxx
-          '';
-
+          buildInputs = self.packages.${system}.default.buildInputs
+            ++ self.packages.${system}.default.nativeBuildInputs;
+          shellHook = "";
         };
       });
 }

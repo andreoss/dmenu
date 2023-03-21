@@ -3,10 +3,10 @@
 
 include config.mk
 
-SRC = drw.c util.c
+SRC = drw.c util.c 
 OBJ = $(SRC:.c=.o)
 
-all: options dmenu stest dwm
+all: options dmenu stest dwm tabbed st
 
 options:
 	@echo dmenu build options:
@@ -20,10 +20,16 @@ options:
 config.h:
 	cp config.def.h $@
 
-$(OBJ): arg.h config.h config.mk drw.h dwm.h config.dwm.h
+$(OBJ): arg.h config.h config.mk drw.h dwm.h config.dwm.h win.h
 
-dmenu: drw.o util.o
+tabbed:
+	$(CC) tabbed.c -o $@ ${OBJ} $(LDFLAGS) $(CFLAGS)
+
+dmenu: ${OBJ}
 	$(CC) dmenu.c -o $@ ${OBJ} $(LDFLAGS) $(CFLAGS)
+
+st: ${OBJ}
+	${CC} st.c -o $@ ${OBJ} ${LDFLAGS} $(CFLAGS)
 
 dwm: ${OBJ}
 	${CC} dwm.c -o $@ ${OBJ} ${LDFLAGS} $(CFLAGS)
@@ -54,7 +60,7 @@ install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
 	cp -f dwm ${DESTDIR}${PREFIX}/bin
-	cp -f dmenu dmenu_path dmenu_run stest $(DESTDIR)$(PREFIX)/bin
+	cp -f dmenu dmenu_path dmenu_run stest st $(DESTDIR)$(PREFIX)/bin
 	sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
 	sed "s/VERSION/$(VERSION)/g" < dmenu.1 > $(DESTDIR)$(MANPREFIX)/man1/dmenu.1
 	sed "s/VERSION/$(VERSION)/g" < stest.1 > $(DESTDIR)$(MANPREFIX)/man1/stest.1

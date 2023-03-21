@@ -766,30 +766,30 @@ switch_windows_start(const Arg *arg)
 			if (grabbed == 0) {
 				switch_windows_end();
 			} else {
-				while (grabbed) {
-					XNextEvent(dpy, &event);
-					if (event.type == KeyPress || event.type == KeyRelease) {
-						if (event.type == KeyRelease && event.xkey.keycode == mod_key_tab) { /* if super key is released break cycle */
-							break;
-						} else if (event.type == KeyPress) {
-							if (event.xkey.keycode == mod_key_cycle) {/* if XK_s is pressed move to the next window */
-								switch_windows();
-							}
-						}
-					}
-				}
+                            while (grabbed) {
+                                XNextEvent(dpy, &event);
+                                if (event.type == KeyPress || event.type == KeyRelease) {
+                                    if (event.type == KeyRelease && event.xkey.keycode == mod_key_tab) { /* if super key is released break cycle */
+                                        break;
+                                    } else if (event.type == KeyPress) {
+                                        if (event.xkey.keycode == mod_key_cycle) {/* if XK_s is pressed move to the next window */
+                                            switch_windows();
+                                        }
+                                    }
+                                }
+                            }
 
-				c = selmon->sel;
-				switch_windows_end(); /* end the alt-tab functionality */
-				/* XUngrabKeyboard(display, time); just a reference */
-				XUngrabKeyboard(dpy, CurrentTime); /* stop taking all input from keyboard */
-		                XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
-				focus(c);
-				restack(selmon);
-			}
-		} else {
-			switch_windows_end(); /* end the alt-tab functionality */
-		}
+                            c = selmon->sel;
+                            switch_windows_end(); /* end the alt-tab functionality */
+                            /* XUngrabKeyboard(display, time); just a reference */
+                            XUngrabKeyboard(dpy, CurrentTime); /* stop taking all input from keyboard */
+                            XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
+                            focus(c);
+                            restack(selmon);
+                        }
+                } else {
+                    switch_windows_end(); /* end the alt-tab functionality */
+                }
 	}
 }
 
@@ -1141,15 +1141,13 @@ grabkeys(void)
 		syms = XGetKeyboardMapping(dpy, start, end - start + 1, &skip);
 		if (!syms)
 			return;
-		for (k = start; k <= end; k++)
-			for (i = 0; i < LENGTH(keys); i++)
-				/* skip modifier codes, we do that ourselves */
-				if (keys[i].keysym == syms[(k - start) * skip])
-					for (j = 0; j < LENGTH(modifiers); j++)
-						XGrabKey(dpy, k,
-							 keys[i].mod | modifiers[j],
-							 root, True,
-							 GrabModeAsync, GrabModeAsync);
+                for (k = start; k <= end; k++)
+                  for (i = 0; i < LENGTH(keys); i++)
+                    /* skip modifier codes, we do that ourselves */
+                    if (keys[i].keysym == syms[(k - start) * skip])
+                      for (j = 0; j < LENGTH(modifiers); j++)
+                        XGrabKey(dpy, k, keys[i].mod | modifiers[j], root, True,
+                                 GrabModeAsync, GrabModeAsync);
 		XFree(syms);
 	}
 }
@@ -1182,6 +1180,7 @@ keypress(XEvent *e)
 
 	ev = &e->xkey;
 	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
+        printf("Keysum: %x\n", keysym);
 	for (i = 0; i < LENGTH(keys); i++)
 		if (keysym == keys[i].keysym
 		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
@@ -2382,23 +2381,23 @@ zoom(const Arg *arg)
 int
 main(int argc, char *argv[])
 {
-	if (argc == 2 && !strcmp("-v", argv[1]))
-		die("dwm-"VERSION);
-	else if (argc != 1)
-		die("usage: dwm [-v]");
-	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
-		fputs("warning: no locale support\n", stderr);
-	if (!(dpy = XOpenDisplay(NULL)))
-		die("dwm: cannot open display");
-	checkotherwm();
-	setup();
+    if (argc == 2 && !strcmp("-v", argv[1]))
+        die("dwm-" VERSION);
+    else if (argc != 1)
+        die("usage: dwm [-v]");
+    if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
+        fputs("warning: no locale support\n", stderr);
+    if (!(dpy = XOpenDisplay(NULL)))
+        die("dwm: cannot open display");
+    checkotherwm();
+    setup();
 #ifdef __OpenBSD__
-	if (pledge("stdio rpath proc exec", NULL) == -1)
-		die("pledge");
+    if (pledge("stdio rpath proc exec", NULL) == -1)
+        die("pledge");
 #endif /* __OpenBSD__ */
-	scan();
-	run();
-	cleanup();
-	XCloseDisplay(dpy);
-	return EXIT_SUCCESS;
+    scan();
+    run();
+    cleanup();
+    XCloseDisplay(dpy);
+    return EXIT_SUCCESS;
 }

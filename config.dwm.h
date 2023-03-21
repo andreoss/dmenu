@@ -1,6 +1,4 @@
-/* See LICENSE file for copyright and license details. */
-
-/* appearance */
+#pragma once
 #define VERSION "121"
 #include "scheme.h"
 #include "dwm.h"
