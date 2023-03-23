@@ -136,8 +136,10 @@ cistrstr(const char *h, const char *n)
 static int
 drawitem(item_t *item, int x, int y, int w)
 {
-	if (item == sel)
-		drw_setscheme(drw, scheme[SchemeSel]);
+    if (item == sel) {
+        drw_setscheme(drw, scheme[SchemeSel]);
+        XWarpPointer(dpy, None, win, 0, 0, 0, 0, x + w / 2, y);
+    }
 	else if (item->out)
 		drw_setscheme(drw, scheme[SchemeOut]);
 	else
@@ -168,9 +170,9 @@ drawmenu(void)
     drw_rect(drw, 0, 0, mw, mh, 1, 1);
 
     if (prompt && *prompt) {
-      drw_setscheme(drw, scheme[SchemeSel]);
-      x = drw_text(drw, x, 0, promptw, bh, lrpad / 2, prompt, 0);
-	}
+        drw_setscheme(drw, scheme[SchemeSel]);
+        x = drw_text(drw, x, 0, promptw, bh, lrpad / 2, prompt, 0);
+    }
 	/* draw input field */
 	w = (lines > 0 || !matches) ? mw - x : inputw;
 	drw_setscheme(drw, scheme[SchemeNorm]);
@@ -180,6 +182,7 @@ drawmenu(void)
 	if ((curpos += lrpad / 2 - 1) < w) {
 		drw_setscheme(drw, scheme[SchemeNorm]);
 		drw_rect(drw, x + curpos, 2, 2, bh - 4, 1, 0);
+                XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, 0);
 	}
 
 	if (lines > 0) {
