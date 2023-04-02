@@ -15,8 +15,10 @@
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 
+#ifdef __OpenBSD__
 #include <termios.h>
 #include <util.h>
+#endif /* __OpenBSD__ */
 
 char *argv0;
 #include "arg.h"
