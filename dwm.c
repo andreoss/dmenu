@@ -785,12 +785,18 @@ switch_windows_start(const Arg *arg)
 			if (grabbed == 0) {
 				switch_windows_end();
 			} else {
+                            int shift = 0;
                             while (grabbed) {
                                 XNextEvent(dpy, &event);
                                 if (event.type == KeyPress || event.type == KeyRelease) {
-                                    if (event.type == KeyRelease && event.xkey.keycode == mod_key_tab) { /* if super key is released break cycle */
-                                        break;
+                                    if (event.type == KeyRelease ) { /* if super key is released break cycle */
+                                        if(event.xkey.keycode == mod_key_tab)
+                                            break;
+                                        if(event.xkey.keycode == 0x32)
+                                            shift = ~shift;
                                     } else if (event.type == KeyPress) {
+                                        if(event.xkey.keycode == 0x32)
+                                            shift = ~shift;
                                         if (event.xkey.keycode == mod_key_cycle) {/* if XK_s is pressed move to the next window */
                                             switch_windows();
                                         }
