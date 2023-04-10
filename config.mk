@@ -27,7 +27,8 @@ BDINC = $(shell pkg-config --cflags fribidi)
 
 # includes and libs
 INCS = -I${X11INC} -I${FREETYPEINC} ${BDINC}
-LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS} $(BDLIBS) -lxcb -lxcb-keysyms -lutil
+LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS} $(BDLIBS) -lxcb -lxcb-keysyms -lutil -lX11-xcb -lxcb-res
+
 # flags
 CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
 CFLAGS   = -std=c17 -pedantic -Wall -Wno-deprecated-declarations -Os ${INCS} ${CPPFLAGS}
