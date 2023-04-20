@@ -1,9 +1,12 @@
 #pragma once
 
-/* enums */
+/*
+ * enums 
+ */
 
 typedef struct item {
-	char *text;
-	struct item *left, *right;
-	int out;
+    char           *text;
+    struct item    *left,
+                   *right;
+    int             out;
 } item_t;
